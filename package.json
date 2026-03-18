@@ -1,0 +1,8 @@
+{
+  "name": "pdf-masking-app",
+  "version": "1.0.0",
+  "description": "PDF masking tool for hiding personal information",
+  "scripts": {
+    "dev": "npx serve . -p 3000 -s"
+  }
+}
