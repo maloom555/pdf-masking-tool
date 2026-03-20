@@ -15,7 +15,6 @@
     scale: 1.5,
     currentTool: 'rect',
     maskColor: '#000000',
-    penSize: 10,
     isDrawing: false,
     startX: 0,
     startY: 0,
@@ -246,13 +245,9 @@
     });
   });
 
-  // Color & Size
+  // Color
   $('#maskColor').addEventListener('input', (e) => {
     state.maskColor = e.target.value;
-  });
-  $('#penSize').addEventListener('input', (e) => {
-    state.penSize = parseInt(e.target.value);
-    $('#penSizeLabel').textContent = state.penSize + 'px';
   });
   // --- Drawing ---
   function getPos(e) {
@@ -290,9 +285,15 @@
     state.startX = pos.x;
     state.startY = pos.y;
 
-    if (state.currentTool === 'pen' || state.currentTool === 'free') {
+    if (state.currentTool === 'pen-thick' || state.currentTool === 'pen-thin' || state.currentTool === 'free') {
       state.currentPath = [{ x: pos.x, y: pos.y }];
     }
+  }
+
+  function getPenSize(tool) {
+    if (tool === 'pen-thick') return 8;
+    if (tool === 'pen-thin') return 2;
+    return 8; // fallback for free
   }
 
   function drawing(e) {
@@ -317,12 +318,12 @@
       const h = Math.abs(pos.y - state.startY);
       maskCtx.fillRect(x, y, w, h);
       maskCtx.restore();
-    } else if (state.currentTool === 'pen') {
+    } else if (state.currentTool === 'pen-thick' || state.currentTool === 'pen-thin') {
       state.currentPath.push({ x: pos.x, y: pos.y });
       redrawMasks();
       maskCtx.save();
       maskCtx.strokeStyle = state.maskColor;
-      maskCtx.lineWidth = state.penSize;
+      maskCtx.lineWidth = getPenSize(state.currentTool);
       maskCtx.lineCap = 'round';
       maskCtx.lineJoin = 'round';
       maskCtx.beginPath();
@@ -377,13 +378,14 @@
           color: state.maskColor,
         });
       }
-    } else if (state.currentTool === 'pen') {
+    } else if (state.currentTool === 'pen-thick' || state.currentTool === 'pen-thin') {
+      const penSize = getPenSize(state.currentTool);
       if (state.currentPath.length > 1) {
         state.masks[state.currentPage].push({
           type: 'pen',
           data: [...state.currentPath],
           color: state.maskColor,
-          size: state.penSize,
+          size: penSize,
         });
       }
     } else if (state.currentTool === 'free') {
@@ -392,13 +394,33 @@
           type: 'free',
           data: [...state.currentPath],
           color: state.maskColor,
-          size: state.penSize,
+          size: 8,
         });
       }
     }
 
     state.currentPath = [];
     redrawMasks();
+
+    // Auto-switch to select mode after drawing
+    switchToSelect();
+  }
+
+  function switchToSelect() {
+    document.querySelectorAll('.tool-btn').forEach((b) => b.classList.remove('active'));
+    const selectBtn = document.querySelector('[data-tool="select"]');
+    if (selectBtn) {
+      selectBtn.classList.add('active');
+      state.currentTool = 'select';
+      $('#drawOptionsGroup').style.display = 'none';
+      $('#selectInfoGroup').style.display = 'flex';
+      maskCanvas.style.cursor = 'default';
+    }
+    // Select the last added mask
+    const pageMasks = state.masks[state.currentPage] || [];
+    if (pageMasks.length > 0) {
+      selectMask(pageMasks.length - 1);
+    }
   }
 
   function getEndPos(e) {
@@ -445,17 +467,25 @@
     return null;
   }
 
-  function hitTestHandle(pos, bounds) {
-    const hs = HANDLE_SIZE / 1;
-    const corners = [
-      { name: 'resize-nw', x: bounds.x, y: bounds.y },
-      { name: 'resize-ne', x: bounds.x + bounds.w, y: bounds.y },
-      { name: 'resize-sw', x: bounds.x, y: bounds.y + bounds.h },
-      { name: 'resize-se', x: bounds.x + bounds.w, y: bounds.y + bounds.h },
+  function getHandlePositions(b) {
+    return [
+      { name: 'resize-nw', x: b.x, y: b.y },
+      { name: 'resize-n',  x: b.x + b.w / 2, y: b.y },
+      { name: 'resize-ne', x: b.x + b.w, y: b.y },
+      { name: 'resize-w',  x: b.x, y: b.y + b.h / 2 },
+      { name: 'resize-e',  x: b.x + b.w, y: b.y + b.h / 2 },
+      { name: 'resize-sw', x: b.x, y: b.y + b.h },
+      { name: 'resize-s',  x: b.x + b.w / 2, y: b.y + b.h },
+      { name: 'resize-se', x: b.x + b.w, y: b.y + b.h },
     ];
-    for (const c of corners) {
-      if (Math.abs(pos.x - c.x) < hs * 2 && Math.abs(pos.y - c.y) < hs * 2) {
-        return c.name;
+  }
+
+  function hitTestHandle(pos, bounds) {
+    const hs = HANDLE_SIZE;
+    const handles = getHandlePositions(bounds);
+    for (const h of handles) {
+      if (Math.abs(pos.x - h.x) < hs * 2 && Math.abs(pos.y - h.y) < hs * 2) {
+        return h.name;
       }
     }
     return null;
@@ -498,14 +528,9 @@
     maskCtx.strokeRect(b.x, b.y, b.w, b.h);
     maskCtx.setLineDash([]);
 
-    // Resize handles
+    // Resize handles (8 points: corners + edge midpoints)
     const hs = HANDLE_SIZE;
-    const handles = [
-      { x: b.x, y: b.y },
-      { x: b.x + b.w, y: b.y },
-      { x: b.x, y: b.y + b.h },
-      { x: b.x + b.w, y: b.y + b.h },
-    ];
+    const handles = getHandlePositions(b);
     for (const h of handles) {
       maskCtx.fillStyle = '#ffffff';
       maskCtx.fillRect(h.x - hs / 2, h.y - hs / 2, hs, hs);
@@ -578,25 +603,17 @@
         }
       }
     } else if (mask.type === 'rect' && state.selDragMode.startsWith('resize-')) {
-      const dir = state.selDragMode;
+      const dir = state.selDragMode.replace('resize-', '');
       let nx = orig.x, ny = orig.y, nw = orig.w, nh = orig.h;
-      if (dir.includes('w')) { // left handles
-        nx = orig.x + dx;
-        nw = orig.w - dx;
-      }
-      if (dir.includes('e')) { // right handles (se, ne)
-        // Only 'e' side
-        if (!dir.includes('w')) {
-          nw = orig.w + dx;
-        }
-      }
-      if (dir === 'resize-ne' || dir === 'resize-nw') {
-        ny = orig.y + dy;
-        nh = orig.h - dy;
-      }
-      if (dir === 'resize-se' || dir === 'resize-sw') {
-        nh = orig.h + dy;
-      }
+
+      // Horizontal
+      if (dir.includes('w')) { nx = orig.x + dx; nw = orig.w - dx; }
+      if (dir.includes('e')) { nw = orig.w + dx; }
+
+      // Vertical
+      if (dir.includes('n')) { ny = orig.y + dy; nh = orig.h - dy; }
+      if (dir.includes('s')) { nh = orig.h + dy; }
+
       // Enforce minimum size
       if (nw < 10) { nw = 10; }
       if (nh < 10) { nh = 10; }

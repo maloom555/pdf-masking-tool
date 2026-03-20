@@ -20,17 +20,21 @@
     <div class="toolbar" id="toolbar" style="display:none;">
       <div class="toolbar-group">
         <label class="toolbar-label">ツール:</label>
-        <button class="tool-btn active" data-tool="rect" title="四角形マスク">
-          <svg width="20" height="20" viewBox="0 0 20 20"><rect x="2" y="4" width="16" height="12" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-          <span>四角形</span>
+        <button class="tool-btn active" data-tool="rect" title="墨消し（四角形マスク）">
+          <svg width="20" height="20" viewBox="0 0 20 20"><rect x="2" y="4" width="16" height="12" rx="1" fill="currentColor" opacity="0.85"/></svg>
+          <span>墨消し</span>
         </button>
-        <button class="tool-btn" data-tool="pen" title="ペンマスク">
-          <svg width="20" height="20" viewBox="0 0 20 20"><path d="M3 17L13 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M11 5L15 3L13 7" fill="currentColor"/></svg>
-          <span>ペン</span>
+        <button class="tool-btn" data-tool="pen-thick" title="太消し（8px）">
+          <svg width="20" height="20" viewBox="0 0 20 20"><path d="M3 14C7 10 13 8 17 6" stroke="currentColor" stroke-width="4" stroke-linecap="round" fill="none"/></svg>
+          <span>太消し</span>
         </button>
-        <button class="tool-btn" data-tool="free" title="自由描画マスク">
-          <svg width="20" height="20" viewBox="0 0 20 20"><path d="M3 15C5 10 8 5 12 8C16 11 14 16 17 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          <span>自由描画</span>
+        <button class="tool-btn" data-tool="pen-thin" title="細消し（2px）">
+          <svg width="20" height="20" viewBox="0 0 20 20"><path d="M3 14C7 10 13 8 17 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>
+          <span>細消し</span>
+        </button>
+        <button class="tool-btn" data-tool="free" title="自由消し">
+          <svg width="20" height="20" viewBox="0 0 20 20"><path d="M3 15C5 10 8 5 12 8C16 11 14 16 17 13" fill="currentColor" opacity="0.6" stroke="currentColor" stroke-width="1"/></svg>
+          <span>自由消し</span>
         </button>
         <span class="toolbar-divider"></span>
         <button class="tool-btn" data-tool="select" title="マスクを選択・移動・リサイズ">
@@ -42,9 +46,6 @@
       <div class="toolbar-group" id="drawOptionsGroup">
         <label class="toolbar-label">色:</label>
         <input type="color" id="maskColor" value="#000000" title="色">
-        <label class="toolbar-label" style="margin-left:8px;">太さ:</label>
-        <input type="range" id="penSize" min="5" max="50" value="10">
-        <span id="penSizeLabel">10px</span>
       </div>
       <div class="toolbar-group" id="selectInfoGroup" style="display:none;">
         <span class="toolbar-hint">マスクをクリックで選択 → ドラッグで移動、ハンドルでリサイズ</span>
