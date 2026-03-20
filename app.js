@@ -365,10 +365,33 @@
     }
   });
 
-  // Touch support
-  maskCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e); });
-  maskCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); drawing(e); });
-  maskCanvas.addEventListener('touchend', (e) => { e.preventDefault(); endDraw(e); });
+  // Touch support — 描画ツール使用時のみスクロールを無効化
+  maskCanvas.addEventListener('touchstart', (e) => {
+    if (state.currentTool !== 'select') {
+      // 描画ツール → 常にスクロール無効化
+      e.preventDefault();
+    } else {
+      // selectツール → マスク上タッチ時のみ無効化
+      const pos = getPos(e);
+      const onMask = state.masks.some(m => hitTestMask(pos, m));
+      if (onMask || state.selectedMaskIndex >= 0) {
+        e.preventDefault();
+      }
+    }
+    startDraw(e);
+  }, { passive: false });
+  maskCanvas.addEventListener('touchmove', (e) => {
+    if (state.isDrawing || state.selDragMode) {
+      e.preventDefault();
+    }
+    drawing(e);
+  }, { passive: false });
+  maskCanvas.addEventListener('touchend', (e) => {
+    if (state.isDrawing || state.selDragMode) {
+      e.preventDefault();
+    }
+    endDraw(e);
+  }, { passive: false });
 
   function startDraw(e) {
     const pos = getPos(e);
