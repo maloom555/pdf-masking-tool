@@ -262,10 +262,106 @@
     };
   }
 
+  // --- Auto-scroll during draw/drag ---
+  const SCROLL_EDGE = 40; // px from container edge to trigger scroll
+  const SCROLL_SPEED = 10; // px per frame
+  let autoScrollRAF = null;
+  let lastClientX = 0, lastClientY = 0;
+
+  function autoScrollContainer(el) {
+    // Check if el is scrollable and cursor is near its edges; scroll if so
+    if (!el) return false;
+    const isScrollableY = el.scrollHeight > el.clientHeight;
+    const isScrollableX = el.scrollWidth > el.clientWidth;
+    if (!isScrollableY && !isScrollableX) return false;
+
+    const r = el.getBoundingClientRect();
+    let didScroll = false;
+
+    if (isScrollableY) {
+      if (lastClientY > r.bottom - SCROLL_EDGE && lastClientY >= r.top) {
+        const before = el.scrollTop;
+        el.scrollTop += SCROLL_SPEED;
+        if (el.scrollTop !== before) didScroll = true;
+      } else if (lastClientY < r.top + SCROLL_EDGE && lastClientY <= r.bottom) {
+        const before = el.scrollTop;
+        el.scrollTop -= SCROLL_SPEED;
+        if (el.scrollTop !== before) didScroll = true;
+      }
+    }
+    if (isScrollableX) {
+      if (lastClientX > r.right - SCROLL_EDGE && lastClientX >= r.left) {
+        const before = el.scrollLeft;
+        el.scrollLeft += SCROLL_SPEED;
+        if (el.scrollLeft !== before) didScroll = true;
+      } else if (lastClientX < r.left + SCROLL_EDGE && lastClientX <= r.right) {
+        const before = el.scrollLeft;
+        el.scrollLeft -= SCROLL_SPEED;
+        if (el.scrollLeft !== before) didScroll = true;
+      }
+    }
+    return didScroll;
+  }
+
+  function startAutoScroll() {
+    if (autoScrollRAF) return;
+    function tick() {
+      if (!state.isDrawing && !state.selDragMode) {
+        autoScrollRAF = requestAnimationFrame(tick);
+        return;
+      }
+
+      // Try each scrollable container in order
+      const scrolled =
+        autoScrollContainer(canvasWrapper) ||
+        autoScrollContainer(document.querySelector('.main-content')) ||
+        autoScrollContainer(document.documentElement);
+
+      if (scrolled) {
+        const syntheticPos = getPosFromClient(lastClientX, lastClientY);
+        if (state.currentTool === 'select') {
+          handleSelectDrag(syntheticPos);
+        } else {
+          drawingAt(syntheticPos);
+        }
+      }
+
+      autoScrollRAF = requestAnimationFrame(tick);
+    }
+    autoScrollRAF = requestAnimationFrame(tick);
+  }
+
+  function stopAutoScroll() {
+    if (autoScrollRAF) {
+      cancelAnimationFrame(autoScrollRAF);
+      autoScrollRAF = null;
+    }
+  }
+
+  function getPosFromClient(clientX, clientY) {
+    const rect = maskCanvas.getBoundingClientRect();
+    const scaleX = maskCanvas.width / rect.width;
+    const scaleY = maskCanvas.height / rect.height;
+    return {
+      x: (clientX - rect.left) * scaleX,
+      y: (clientY - rect.top) * scaleY,
+    };
+  }
+
   maskCanvas.addEventListener('mousedown', startDraw);
-  maskCanvas.addEventListener('mousemove', drawing);
-  maskCanvas.addEventListener('mouseup', endDraw);
-  maskCanvas.addEventListener('mouseleave', endDraw);
+  // Use document-level listeners so drawing continues outside canvas
+  document.addEventListener('mousemove', (e) => {
+    lastClientX = e.clientX;
+    lastClientY = e.clientY;
+    if (state.isDrawing || state.selDragMode) {
+      drawing(e);
+    }
+  });
+  document.addEventListener('mouseup', (e) => {
+    if (state.isDrawing || state.selDragMode) {
+      endDraw(e);
+    }
+  });
 
   // Touch support
   maskCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e); });
@@ -274,10 +370,15 @@
 
   function startDraw(e) {
     const pos = getPos(e);
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    lastClientX = clientX;
+    lastClientY = clientY;
 
     // --- Select tool ---
     if (state.currentTool === 'select') {
       handleSelectStart(pos);
+      startAutoScroll();
       return;
     }
 
@@ -288,6 +389,7 @@
     if (state.currentTool === 'pen-thick' || state.currentTool === 'pen-thin' || state.currentTool === 'free') {
       state.currentPath = [{ x: pos.x, y: pos.y }];
     }
+    startAutoScroll();
   }
 
   function getPenSize(tool) {
@@ -306,7 +408,10 @@
     }
 
     if (!state.isDrawing) return;
+    drawingAt(pos);
+  }
 
+  function drawingAt(pos) {
     if (state.currentTool === 'rect') {
       redrawMasks();
       maskCtx.save();
@@ -352,6 +457,8 @@
   }
 
   function endDraw(e) {
+    stopAutoScroll();
+
     // --- Select tool end ---
     if (state.currentTool === 'select') {
       handleSelectEnd();
@@ -656,7 +763,22 @@
   // --- Clear Page ---
   $('#clearPageBtn').addEventListener('click', () => {
     state.masks[state.currentPage] = [];
-    redrawMasks();
+    deselectMask();
+  });
+
+  // --- Full Page Mask ---
+  $('#clearAllBtn').addEventListener('click', () => {
+    if (!state.masks[state.currentPage]) {
+      state.masks[state.currentPage] = [];
+    }
+    // Add a rect covering the entire canvas
+    state.masks[state.currentPage].push({
+      type: 'rect',
+      data: { x: 0, y: 0, w: maskCanvas.width, h: maskCanvas.height },
+      color: state.maskColor,
+    });
+    // Switch to select mode with the new mask selected
+    switchToSelect();
   });
 
   // --- Page Navigation ---
@@ -841,6 +963,10 @@
     if (e.ctrlKey && e.key === 'z') {
       e.preventDefault();
       $('#undoBtn').click();
+    }
+    if (e.key === 'Delete' && state.selectedMaskIndex >= 0) {
+      e.preventDefault();
+      $('#deleteSelBtn').click();
     }
   });
 })();
