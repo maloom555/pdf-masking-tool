@@ -10,6 +10,7 @@
   const state = {
     pdfDoc: null,
     pdfBytes: null,
+    pdfFileName: '',
     currentPage: 1,
     totalPages: 0,
     scale: 1.5,
@@ -97,6 +98,7 @@
   async function loadPDF(file) {
     showLoading('PDFを読み込み中...');
     try {
+      state.pdfFileName = file.name.replace(/\.pdf$/i, '');
       const arrayBuffer = await file.arrayBuffer();
       state.pdfBytes = new Uint8Array(arrayBuffer);
       state.pdfDoc = await pdfjsLib.getDocument({ data: state.pdfBytes.slice() }).promise;
@@ -867,7 +869,7 @@
       }
 
       const resultBytes = await newPdf.save();
-      downloadBlob(resultBytes, 'masked_output.pdf', 'application/pdf');
+      downloadBlob(resultBytes, state.pdfFileName + '_masked.pdf', 'application/pdf');
     } catch (err) {
       alert('PDF出力に失敗しました: ' + err.message);
       console.error(err);
