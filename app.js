@@ -371,10 +371,19 @@
       // 描画ツール → 常にスクロール無効化
       e.preventDefault();
     } else {
-      // selectツール → マスク上タッチ時のみ無効化
+      // selectツール → マスクまたはハンドル上タッチ時のみ無効化
       const pos = getPos(e);
-      const onMask = state.masks.some(m => hitTestMask(pos, m));
-      if (onMask || state.selectedMaskIndex >= 0) {
+      const pageMasks = state.masks[state.currentPage] || [];
+      const onMask = pageMasks.some(m => hitTestMask(pos, m));
+      let onHandle = false;
+      if (state.selectedMaskIndex >= 0) {
+        const selMask = pageMasks[state.selectedMaskIndex];
+        if (selMask) {
+          const b = getMaskBounds(selMask);
+          if (b) onHandle = !!hitTestHandle(pos, b);
+        }
+      }
+      if (onMask || onHandle) {
         e.preventDefault();
       }
     }
