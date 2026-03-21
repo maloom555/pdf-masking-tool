@@ -365,37 +365,81 @@
     }
   });
 
-  // Touch support — 描画ツール使用時のみスクロールを無効化
+  // --- ピンチズーム対応 ---
+  let pinchStartDist = 0;
+  let pinchStartScale = 1;
+  let isPinching = false;
+
+  function getTouchDist(t1, t2) {
+    const dx = t1.clientX - t2.clientX;
+    const dy = t1.clientY - t2.clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  // Touch support — 描画ツール使用時のみスクロールを無効化 + ピンチズーム
   maskCanvas.addEventListener('touchstart', (e) => {
-    if (state.currentTool !== 'select') {
-      // 描画ツール → 常にスクロール無効化
+    // 2本指 → ピンチズーム開始
+    if (e.touches.length === 2) {
+      isPinching = true;
+      pinchStartDist = getTouchDist(e.touches[0], e.touches[1]);
+      pinchStartScale = state.scale;
       e.preventDefault();
-    } else {
-      // selectツール → マスクまたはハンドル上タッチ時のみ無効化
-      const pos = getPos(e);
-      const pageMasks = state.masks[state.currentPage] || [];
-      const onMask = pageMasks.some(m => hitTestMask(pos, m));
-      let onHandle = false;
-      if (state.selectedMaskIndex >= 0) {
-        const selMask = pageMasks[state.selectedMaskIndex];
-        if (selMask) {
-          const b = getMaskBounds(selMask);
-          if (b) onHandle = !!hitTestHandle(pos, b);
+      return;
+    }
+    // 1本指 → 通常操作
+    if (e.touches.length === 1 && !isPinching) {
+      if (state.currentTool !== 'select') {
+        e.preventDefault();
+      } else {
+        const pos = getPos(e);
+        const pageMasks = state.masks[state.currentPage] || [];
+        const onMask = pageMasks.some(m => hitTestMask(pos, m));
+        let onHandle = false;
+        if (state.selectedMaskIndex >= 0) {
+          const selMask = pageMasks[state.selectedMaskIndex];
+          if (selMask) {
+            const b = getMaskBounds(selMask);
+            if (b) onHandle = !!hitTestHandle(pos, b);
+          }
+        }
+        if (onMask || onHandle) {
+          e.preventDefault();
         }
       }
-      if (onMask || onHandle) {
-        e.preventDefault();
-      }
+      startDraw(e);
     }
-    startDraw(e);
   }, { passive: false });
   maskCanvas.addEventListener('touchmove', (e) => {
-    if (state.isDrawing || state.selDragMode) {
+    // ピンチズーム中
+    if (isPinching && e.touches.length === 2) {
       e.preventDefault();
+      const dist = getTouchDist(e.touches[0], e.touches[1]);
+      const ratio = dist / pinchStartDist;
+      const newScale = Math.min(Math.max(pinchStartScale * ratio, 0.5), 4);
+      if (Math.abs(newScale - state.scale) > 0.02) {
+        state.scale = Math.round(newScale * 20) / 20; // 0.05刻み
+        updateZoomLabel();
+      }
+      return;
     }
-    drawing(e);
+    // 1本指 → 通常操作
+    if (e.touches.length === 1 && !isPinching) {
+      if (state.isDrawing || state.selDragMode) {
+        e.preventDefault();
+      }
+      drawing(e);
+    }
   }, { passive: false });
   maskCanvas.addEventListener('touchend', (e) => {
+    if (isPinching) {
+      // ピンチ終了 → ページ再描画
+      if (e.touches.length < 2) {
+        isPinching = false;
+        renderPage();
+      }
+      e.preventDefault();
+      return;
+    }
     if (state.isDrawing || state.selDragMode) {
       e.preventDefault();
     }
@@ -972,14 +1016,37 @@
     return bytes;
   }
 
-  function downloadBlob(bytes, filename, mime) {
+  async function downloadBlob(bytes, filename, mime) {
     const blob = new Blob([bytes], { type: mime });
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+    // スマホ: Web Share APIで共有メニュー → 「ファイルに保存」等が選べる
+    if (isMobile && navigator.canShare) {
+      try {
+        const file = new File([blob], filename, { type: mime });
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: filename,
+          });
+          return;
+        }
+      } catch (e) {
+        // キャンセルされた場合は何もしない
+        if (e.name === 'AbortError') return;
+        // Share APIが使えない場合はフォールバック
+      }
+    }
+
+    // PC or フォールバック: 通常ダウンロード
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = filename;
+    document.body.appendChild(a);
     a.click();
-    URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
   // --- Loading ---
