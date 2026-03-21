@@ -215,6 +215,7 @@
     const maxW = window.innerWidth - 60;
     const maxH = window.innerHeight - 220;
 
+    const oldScale = state.scale;
     if (currentMode === 0) {
       // 縦フィット: 高さに合わせる
       state.scale = Math.min(maxH / viewport.height, 4);
@@ -226,6 +227,7 @@
       state.scale = 1.0;
     }
 
+    rescaleMasks(oldScale, state.scale);
     renderPage();
   }
 
@@ -368,6 +370,7 @@
   // --- ピンチズーム対応 ---
   let pinchStartDist = 0;
   let pinchStartScale = 1;
+  let pinchCurrentScale = 1;
   let isPinching = false;
 
   function getTouchDist(t1, t2) {
@@ -410,16 +413,14 @@
     }
   }, { passive: false });
   maskCanvas.addEventListener('touchmove', (e) => {
-    // ピンチズーム中
+    // ピンチズーム中（プレビュー表示のみ、座標変換はtouchendで）
     if (isPinching && e.touches.length === 2) {
       e.preventDefault();
       const dist = getTouchDist(e.touches[0], e.touches[1]);
       const ratio = dist / pinchStartDist;
-      const newScale = Math.min(Math.max(pinchStartScale * ratio, 0.5), 4);
-      if (Math.abs(newScale - state.scale) > 0.02) {
-        state.scale = Math.round(newScale * 20) / 20; // 0.05刻み
-        updateZoomLabel();
-      }
+      pinchCurrentScale = Math.min(Math.max(pinchStartScale * ratio, 0.5), 4);
+      // ズーム率だけ表示（実際の変換はtouchendで）
+      updateZoomLabel(Math.round(pinchCurrentScale * 100) + '%');
       return;
     }
     // 1本指 → 通常操作
@@ -432,10 +433,10 @@
   }, { passive: false });
   maskCanvas.addEventListener('touchend', (e) => {
     if (isPinching) {
-      // ピンチ終了 → ページ再描画
+      // ピンチ終了 → マスク座標変換 + ページ再描画
       if (e.touches.length < 2) {
         isPinching = false;
-        renderPage();
+        changeScale(pinchCurrentScale);
       }
       e.preventDefault();
       return;
@@ -875,18 +876,47 @@
   });
 
   // --- Zoom ---
-  function updateZoomLabel() {
-    $('#zoomLevel').textContent = Math.round(state.scale * 100) + '%';
+  function updateZoomLabel(text) {
+    $('#zoomLevel').textContent = text || Math.round(state.scale * 100) + '%';
+  }
+
+  // スケール変更時にマスク座標を変換
+  function rescaleMasks(oldScale, newScale) {
+    if (oldScale === newScale) return;
+    const ratio = newScale / oldScale;
+    for (const pageNum in state.masks) {
+      for (const mask of state.masks[pageNum]) {
+        if (mask.type === 'rect') {
+          mask.data.x *= ratio;
+          mask.data.y *= ratio;
+          mask.data.w *= ratio;
+          mask.data.h *= ratio;
+        } else if (mask.type === 'pen' || mask.type === 'free') {
+          for (const pt of mask.data) {
+            pt.x *= ratio;
+            pt.y *= ratio;
+          }
+          if (mask.size) mask.size *= ratio;
+        }
+      }
+    }
+  }
+
+  function changeScale(newScale) {
+    const oldScale = state.scale;
+    const clamped = Math.min(Math.max(newScale, 0.5), 4);
+    if (clamped === oldScale) return;
+    rescaleMasks(oldScale, clamped);
+    state.scale = clamped;
+    renderPage();
   }
 
   $('#zoomIn').addEventListener('click', () => {
-    state.scale = Math.min(state.scale + 0.25, 4);
-    renderPage();
+    changeScale(state.scale + 0.25);
   });
 
   $('#zoomOut').addEventListener('click', () => {
-    state.scale = Math.max(state.scale - 0.25, 0.5);
-    renderPage();
+    changeScale(state.scale - 0.25);
   });
 
   $('#zoomFit').addEventListener('click', cycleFit);
