@@ -481,6 +481,21 @@
       return;
     }
 
+    // --- 描画ツール中に既存マスクをクリック → 選択モードに切替 ---
+    const pageMasks = state.masks[state.currentPage] || [];
+    for (let i = pageMasks.length - 1; i >= 0; i--) {
+      if (hitTestMask(pos, pageMasks[i])) {
+        switchToSelect();
+        updateToolHint('select');
+        selectMask(i);
+        state.selDragMode = 'move';
+        state.selDragStart = { x: pos.x, y: pos.y };
+        state.selOrigData = JSON.parse(JSON.stringify(pageMasks[i].data));
+        startAutoScroll();
+        return;
+      }
+    }
+
     state.isDrawing = true;
     state.startX = pos.x;
     state.startY = pos.y;
