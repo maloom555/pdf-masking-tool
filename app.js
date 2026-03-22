@@ -845,19 +845,41 @@
     deselectMask();
   });
 
-  // --- Full Page Mask ---
+  // --- Full Page Mask (トグル) ---
   $('#clearAllBtn').addEventListener('click', () => {
+    const pageMasks = state.masks[state.currentPage] || [];
+    // 全消し済みかチェック（最後のマスクがページ全体の矩形か）
+    const lastMask = pageMasks[pageMasks.length - 1];
+    const isFullPage = lastMask && lastMask.type === 'rect' && lastMask._fullPage;
+    if (isFullPage) {
+      // 再度押すと全消しマスクを除去（トグル）
+      pageMasks.pop();
+      deselectMask();
+      return;
+    }
     if (!state.masks[state.currentPage]) {
       state.masks[state.currentPage] = [];
     }
-    // Add a rect covering the entire canvas
+    // ページ全体マスクを追加（_fullPageフラグ付き）
     state.masks[state.currentPage].push({
       type: 'rect',
       data: { x: 0, y: 0, w: maskCanvas.width, h: maskCanvas.height },
       color: state.maskColor,
+      _fullPage: true,
     });
-    // Switch to select mode with the new mask selected
-    switchToSelect();
+    // 選択モードに切り替え（ヒント非表示）
+    document.querySelectorAll('.tool-btn').forEach((b) => b.classList.remove('active'));
+    const selectBtn = document.querySelector('[data-tool="select"]');
+    if (selectBtn) {
+      selectBtn.classList.add('active');
+      state.currentTool = 'select';
+      $('#drawOptionsGroup').style.display = 'none';
+      // 全消し時はヒントを非表示
+      $('#selectInfoGroup').style.display = 'none';
+      maskCanvas.style.cursor = 'default';
+    }
+    // 最後に追加したマスクを選択状態に
+    selectMask(state.masks[state.currentPage].length - 1);
   });
 
   // --- Page Navigation ---
