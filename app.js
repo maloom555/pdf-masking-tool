@@ -539,15 +539,17 @@
       maskCtx.fillRect(x, y, w, h);
       maskCtx.restore();
     } else if (state.currentTool === 'pen-thick' || state.currentTool === 'pen-thin') {
-      // Shift押し: 水平or垂直に制約
+      // Shift押し: 開始点から水平or垂直に強制（完全直線）
       let constrained = { x: pos.x, y: pos.y };
       if (shiftKey && state.currentPath.length > 0) {
-        const last = state.currentPath[state.currentPath.length - 1];
-        if (Math.abs(pos.x - last.x) > Math.abs(pos.y - last.y)) {
-          constrained.y = last.y; // 水平
+        const origin = state.currentPath[0]; // 開始点基準
+        if (Math.abs(pos.x - origin.x) > Math.abs(pos.y - origin.y)) {
+          constrained.y = origin.y; // 水平
         } else {
-          constrained.x = last.x; // 垂直
+          constrained.x = origin.x; // 垂直
         }
+        // パスを開始点と現在点の2点だけにする（直線）
+        state.currentPath = [origin];
       }
       state.currentPath.push(constrained);
       redrawMasks();
