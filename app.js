@@ -618,9 +618,6 @@
 
     state.currentPath = [];
     redrawMasks();
-
-    // Auto-switch to select mode after drawing
-    switchToSelect();
   }
 
   function switchToSelect() {
