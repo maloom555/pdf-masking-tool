@@ -270,7 +270,7 @@
   const SCROLL_EDGE = 40; // px from container edge to trigger scroll
   const SCROLL_SPEED = 10; // px per frame
   let autoScrollRAF = null;
-  let lastClientX = 0, lastClientY = 0;
+  let lastClientX = 0, lastClientY = 0, lastShiftKey = false;
 
   function autoScrollContainer(el) {
     // Check if el is scrollable and cursor is near its edges; scroll if so
@@ -326,7 +326,7 @@
         if (state.currentTool === 'select') {
           handleSelectDrag(syntheticPos);
         } else {
-          drawingAt(syntheticPos);
+          drawingAt(syntheticPos, lastShiftKey);
         }
       }
 
@@ -357,6 +357,7 @@
   document.addEventListener('mousemove', (e) => {
     lastClientX = e.clientX;
     lastClientY = e.clientY;
+    lastShiftKey = e.shiftKey;
     if (state.isDrawing || state.selDragMode) {
       drawing(e);
     }
@@ -479,6 +480,7 @@
 
   function drawing(e) {
     const pos = getPos(e);
+    const shiftKey = e.shiftKey || false;
 
     // --- Select tool drag ---
     if (state.currentTool === 'select') {
@@ -487,10 +489,10 @@
     }
 
     if (!state.isDrawing) return;
-    drawingAt(pos);
+    drawingAt(pos, shiftKey);
   }
 
-  function drawingAt(pos) {
+  function drawingAt(pos, shiftKey) {
     if (state.currentTool === 'rect') {
       redrawMasks();
       maskCtx.save();
@@ -503,7 +505,17 @@
       maskCtx.fillRect(x, y, w, h);
       maskCtx.restore();
     } else if (state.currentTool === 'pen-thick' || state.currentTool === 'pen-thin') {
-      state.currentPath.push({ x: pos.x, y: pos.y });
+      // Shift押し: 水平or垂直に制約
+      let constrained = { x: pos.x, y: pos.y };
+      if (shiftKey && state.currentPath.length > 0) {
+        const last = state.currentPath[state.currentPath.length - 1];
+        if (Math.abs(pos.x - last.x) > Math.abs(pos.y - last.y)) {
+          constrained.y = last.y; // 水平
+        } else {
+          constrained.x = last.x; // 垂直
+        }
+      }
+      state.currentPath.push(constrained);
       redrawMasks();
       maskCtx.save();
       maskCtx.strokeStyle = state.maskColor;
