@@ -319,6 +319,11 @@ body {
   color: #94a3b8;
   white-space: nowrap;
 }
+#toolHint {
+  margin-left: auto;
+  color: #64748b;
+  font-size: 0.8rem;
+}
 
 .action-btn.danger {
   color: #ef4444;
@@ -363,7 +368,7 @@ body {
   .toolbar-label {
     display: none;
   }
-  .toolbar-hint {
+  .toolbar .toolbar-hint {
     display: none;
   }
   .toolbar-divider {

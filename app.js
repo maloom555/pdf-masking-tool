@@ -231,6 +231,23 @@
     renderPage();
   }
 
+  // --- Tool Hints ---
+  const TOOL_HINTS = {
+    'rect': 'ドラッグで範囲選択',
+    'pen-thick': 'ドラッグで描画（Shift: 水平/垂直）',
+    'pen-thin': 'ドラッグで描画（Shift: 水平/垂直）',
+    'free': 'ドラッグで自由描画',
+    'select': 'クリックで選択 → ドラッグ移動 / ハンドルでリサイズ',
+    'clearAll': '',
+  };
+
+  function updateToolHint(tool) {
+    const hint = $('#toolHint');
+    const text = TOOL_HINTS[tool] || '';
+    hint.textContent = text;
+    hint.style.display = text ? '' : 'none';
+  }
+
   // --- Tool Selection ---
   document.querySelectorAll('.tool-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -242,6 +259,8 @@
       $('#drawOptionsGroup').style.display = isSelect ? 'none' : 'flex';
       $('#selectInfoGroup').style.display = isSelect ? 'flex' : 'none';
       maskCanvas.style.cursor = isSelect ? 'default' : 'crosshair';
+
+      updateToolHint(state.currentTool);
 
       if (!isSelect) {
         deselectMask();
@@ -886,8 +905,8 @@
       selectBtn.classList.add('active');
       state.currentTool = 'select';
       $('#drawOptionsGroup').style.display = 'none';
-      // 全消し時はヒントを非表示
       $('#selectInfoGroup').style.display = 'none';
+      updateToolHint('clearAll');
       maskCanvas.style.cursor = 'default';
     }
     // 最後に追加したマスクを選択状態に
