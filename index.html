@@ -21,88 +21,134 @@
     <div class="help-overlay" id="helpOverlay" style="display:none;">
       <div class="help-modal">
         <button class="help-close" id="helpClose">&times;</button>
-        <h2>使い方ガイド</h2>
+        <h2>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="vertical-align:-4px;margin-right:6px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-6h2v6zm0-8h-2V7h2v4z" fill="#4f46e5"/></svg>
+          使い方ガイド
+        </h2>
 
         <section class="help-section">
-          <h3>1. PDFを読み込む</h3>
+          <h3>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:-3px;margin-right:4px;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" stroke="#4f46e5" stroke-width="2"/><path d="M14 2v6h6M12 18v-6M9 15l3 3 3-3" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            PDFを読み込む
+          </h3>
           <p>ファイルを<b>ドラッグ＆ドロップ</b>するか、「ファイルを選択」ボタンからPDFを開きます。</p>
         </section>
 
         <section class="help-section">
-          <h3>2. マスキングツール</h3>
+          <h3>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:-3px;margin-right:4px;"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            マスキングツール
+          </h3>
           <table class="help-table">
             <tr>
-              <td><b>墨消し</b></td>
-              <td>ドラッグで四角形の墨消しを作成。連続で何個でも描けます。既存マスクをクリックすると選択モードに自動切替。</td>
+              <td class="help-icon-cell">
+                <svg width="20" height="20" viewBox="0 0 20 20"><rect x="2" y="4" width="16" height="12" rx="1" fill="#4f46e5" opacity="0.85"/></svg>
+                <b>墨消し</b>
+              </td>
+              <td>ドラッグで四角形の墨消しを作成。連続で何個でも描けます。<br><span class="help-tip">既存マスクをクリック → 自動で選択モードに切替</span></td>
             </tr>
             <tr>
-              <td><b>太消し</b></td>
-              <td>太いペンで線を引いてマスク。<b>Shift+ドラッグ</b>で完全な水平・垂直ラインに。</td>
+              <td class="help-icon-cell">
+                <svg width="20" height="20" viewBox="0 0 20 20"><path d="M3 14C7 10 13 8 17 6" stroke="#4f46e5" stroke-width="4" stroke-linecap="round" fill="none"/></svg>
+                <b>太消し</b>
+              </td>
+              <td>太いペンで線を引いてマスク。<br><span class="help-tip"><kbd>Shift</kbd> + ドラッグ → 完全な水平・垂直ライン</span></td>
             </tr>
             <tr>
-              <td><b>細消し</b></td>
-              <td>細いペンで線を引いてマスク。<b>Shift+ドラッグ</b>で水平・垂直ライン。</td>
+              <td class="help-icon-cell">
+                <svg width="20" height="20" viewBox="0 0 20 20"><path d="M3 14C7 10 13 8 17 6" stroke="#4f46e5" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>
+                <b>細消し</b>
+              </td>
+              <td>細いペンで線を引いてマスク。<br><span class="help-tip"><kbd>Shift</kbd> + ドラッグ → 水平・垂直ライン</span></td>
             </tr>
             <tr>
-              <td><b>自由消し</b></td>
+              <td class="help-icon-cell">
+                <svg width="20" height="20" viewBox="0 0 20 20"><path d="M3 15C5 10 8 5 12 8C16 11 14 16 17 13" fill="#4f46e5" opacity="0.6" stroke="#4f46e5" stroke-width="1"/></svg>
+                <b>自由消し</b>
+              </td>
               <td>フリーハンドで塗りつぶしてマスク。不規則な形状に対応。</td>
             </tr>
             <tr>
-              <td><b>全消し</b></td>
-              <td>ページ全体をマスク。再度押すと解除。選択モードに切り替わるのでハンドルで範囲調整も可能。</td>
+              <td class="help-icon-cell">
+                <svg width="20" height="20" viewBox="0 0 20 20"><rect x="1" y="1" width="18" height="18" rx="2" fill="#4f46e5" opacity="0.85"/></svg>
+                <b>全消し</b>
+              </td>
+              <td>ページ全体をマスク。再度押すと解除。<br><span class="help-tip">選択モードに切り替わり、ハンドルで範囲調整可能</span></td>
             </tr>
             <tr>
-              <td><b>選択</b></td>
-              <td>マスクをクリックで選択。ドラッグで移動、角のハンドルでリサイズ。</td>
+              <td class="help-icon-cell">
+                <svg width="20" height="20" viewBox="0 0 20 20"><path d="M4 2L4 16L8 12L12 16L14 14L10 10L14 10Z" fill="#4f46e5"/></svg>
+                <b>選択</b>
+              </td>
+              <td>マスクをクリックで選択。<br><span class="help-tip">ドラッグ → 移動 ／ 角のハンドル → リサイズ</span></td>
             </tr>
           </table>
         </section>
 
         <section class="help-section">
-          <h3>3. 編集操作</h3>
+          <h3>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:-3px;margin-right:4px;"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="#4f46e5" stroke-width="2" stroke-linecap="round"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            編集操作
+          </h3>
           <table class="help-table">
-            <tr><td><b>色</b></td><td>カラーピッカーでマスクの色を変更</td></tr>
-            <tr><td><b>元に戻す</b></td><td>直前のマスクを取り消し</td></tr>
-            <tr><td><b>クリア</b></td><td>現在ページのマスクを全て削除</td></tr>
-            <tr><td><b>Delete / Backspace</b></td><td>選択中のマスクを削除</td></tr>
+            <tr><td class="help-icon-cell"><span class="help-kbd-icon">🎨</span> <b>色</b></td><td>カラーピッカーでマスクの色を変更</td></tr>
+            <tr><td class="help-icon-cell"><span class="help-kbd-icon">↩</span> <b>元に戻す</b></td><td>直前のマスクを取り消し</td></tr>
+            <tr><td class="help-icon-cell"><span class="help-kbd-icon">🗑</span> <b>クリア</b></td><td>現在ページのマスクを全て削除</td></tr>
+            <tr><td class="help-icon-cell"><kbd>Del</kbd></td><td>選択中のマスクを削除（<kbd>Backspace</kbd> も可）</td></tr>
           </table>
         </section>
 
         <section class="help-section">
-          <h3>4. ズーム操作</h3>
+          <h3>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:-3px;margin-right:4px;"><circle cx="11" cy="11" r="8" stroke="#4f46e5" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="#4f46e5" stroke-width="2" stroke-linecap="round"/><path d="M11 8v6M8 11h6" stroke="#4f46e5" stroke-width="2" stroke-linecap="round"/></svg>
+            ズーム操作
+          </h3>
           <table class="help-table">
-            <tr><td><b>＋ / −</b></td><td>拡大 / 縮小（50%〜400%）</td></tr>
-            <tr><td><b>フィットボタン</b></td><td>押すたびに切替：縦フィット→横フィット→100%</td></tr>
-            <tr><td><b>ピンチ（スマホ）</b></td><td>2本指でズームイン/アウト</td></tr>
+            <tr><td class="help-icon-cell"><kbd>＋</kbd> <kbd>−</kbd></td><td>拡大 / 縮小（50%〜400%）</td></tr>
+            <tr><td class="help-icon-cell"><span class="help-kbd-icon">📐</span> <b>フィット</b></td><td>押すたびに切替：縦フィット → 横フィット → 100%</td></tr>
+            <tr><td class="help-icon-cell"><span class="help-kbd-icon">🤏</span> <b>ピンチ</b></td><td>スマホで2本指ズームイン/アウト</td></tr>
           </table>
         </section>
 
         <section class="help-section">
-          <h3>5. ページ移動</h3>
+          <h3>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:-3px;margin-right:4px;"><path d="M15 18l-6-6 6-6" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:-3px;margin-right:2px;"><path d="M9 18l6-6-6-6" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            ページ移動
+          </h3>
           <p>◀ ▶ ボタンで前後のページに移動。各ページ個別にマスクが保持されます。</p>
         </section>
 
         <section class="help-section">
-          <h3>6. 保存</h3>
+          <h3>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:-3px;margin-right:4px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            保存
+          </h3>
           <p>「📥 PDFダウンロード」でマスク済みPDFを保存。</p>
           <ul>
-            <li>ファイル名は「<b>元のファイル名_masked.pdf</b>」</li>
-            <li>元のテキスト情報は削除され、<b>画像化されたPDF</b>として出力（テキスト抽出不可）</li>
+            <li>ファイル名: <b>元のファイル名_masked.pdf</b></li>
+            <li>元のテキスト情報は削除 → <b>画像化PDF</b>として出力（テキスト抽出不可）</li>
             <li>スマホではOSの共有メニューが表示されます</li>
           </ul>
         </section>
 
         <section class="help-section">
-          <h3>7. スマホでの操作</h3>
+          <h3>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:-3px;margin-right:4px;"><rect x="5" y="2" width="14" height="20" rx="3" stroke="#4f46e5" stroke-width="2"/><circle cx="12" cy="18" r="1" fill="#4f46e5"/></svg>
+            スマホでの操作
+          </h3>
           <table class="help-table">
-            <tr><td><b>1本指タッチ</b></td><td>描画 / 選択 / スクロール</td></tr>
-            <tr><td><b>2本指ピンチ</b></td><td>ズームイン/アウト</td></tr>
-            <tr><td><b>マスク上タッチ</b></td><td>選択→ドラッグで移動/リサイズ</td></tr>
+            <tr><td class="help-icon-cell"><span class="help-kbd-icon">👆</span> <b>1本指</b></td><td>描画 / 選択 / スクロール</td></tr>
+            <tr><td class="help-icon-cell"><span class="help-kbd-icon">🤏</span> <b>2本指</b></td><td>ピンチでズームイン/アウト</td></tr>
+            <tr><td class="help-icon-cell"><span class="help-kbd-icon">☝️</span> <b>マスク上</b></td><td>タッチ → 選択 → ドラッグで移動/リサイズ</td></tr>
           </table>
         </section>
 
         <section class="help-section help-note">
-          <h3>セキュリティについて</h3>
+          <h3>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:-3px;margin-right:4px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            セキュリティについて
+          </h3>
           <p>このツールは<b>完全にブラウザ内で動作</b>します。PDFファイルがサーバーに送信されることはありません。</p>
         </section>
       </div>

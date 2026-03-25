@@ -562,7 +562,38 @@ body {
   white-space: nowrap;
   font-weight: 600;
   color: #4f46e5;
-  width: 100px;
+  width: 120px;
+}
+.help-icon-cell {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.help-icon-cell svg {
+  flex-shrink: 0;
+}
+.help-tip {
+  display: inline-block;
+  font-size: 12px;
+  color: #6366f1;
+  background: #eef2ff;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-top: 2px;
+}
+.help-kbd-icon {
+  font-size: 16px;
+}
+kbd {
+  display: inline-block;
+  padding: 2px 6px;
+  font-size: 12px;
+  font-family: monospace;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  box-shadow: 0 1px 0 #d1d5db;
+  color: #374151;
 }
 .help-note {
   background: #f0fdf4;
