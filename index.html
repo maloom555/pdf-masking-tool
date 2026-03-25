@@ -14,7 +14,99 @@
     <header class="header" id="headerLogo" title="トップに戻る">
       <h1>PDF マスキングツール</h1>
       <p class="subtitle">AI送信前に個人情報をマスキング</p>
+      <button class="help-btn" id="helpBtn" title="使い方">?</button>
     </header>
+
+    <!-- Help Modal -->
+    <div class="help-overlay" id="helpOverlay" style="display:none;">
+      <div class="help-modal">
+        <button class="help-close" id="helpClose">&times;</button>
+        <h2>使い方ガイド</h2>
+
+        <section class="help-section">
+          <h3>1. PDFを読み込む</h3>
+          <p>ファイルを<b>ドラッグ＆ドロップ</b>するか、「ファイルを選択」ボタンからPDFを開きます。</p>
+        </section>
+
+        <section class="help-section">
+          <h3>2. マスキングツール</h3>
+          <table class="help-table">
+            <tr>
+              <td><b>墨消し</b></td>
+              <td>ドラッグで四角形の墨消しを作成。連続で何個でも描けます。既存マスクをクリックすると選択モードに自動切替。</td>
+            </tr>
+            <tr>
+              <td><b>太消し</b></td>
+              <td>太いペンで線を引いてマスク。<b>Shift+ドラッグ</b>で完全な水平・垂直ラインに。</td>
+            </tr>
+            <tr>
+              <td><b>細消し</b></td>
+              <td>細いペンで線を引いてマスク。<b>Shift+ドラッグ</b>で水平・垂直ライン。</td>
+            </tr>
+            <tr>
+              <td><b>自由消し</b></td>
+              <td>フリーハンドで塗りつぶしてマスク。不規則な形状に対応。</td>
+            </tr>
+            <tr>
+              <td><b>全消し</b></td>
+              <td>ページ全体をマスク。再度押すと解除。選択モードに切り替わるのでハンドルで範囲調整も可能。</td>
+            </tr>
+            <tr>
+              <td><b>選択</b></td>
+              <td>マスクをクリックで選択。ドラッグで移動、角のハンドルでリサイズ。</td>
+            </tr>
+          </table>
+        </section>
+
+        <section class="help-section">
+          <h3>3. 編集操作</h3>
+          <table class="help-table">
+            <tr><td><b>色</b></td><td>カラーピッカーでマスクの色を変更</td></tr>
+            <tr><td><b>元に戻す</b></td><td>直前のマスクを取り消し</td></tr>
+            <tr><td><b>クリア</b></td><td>現在ページのマスクを全て削除</td></tr>
+            <tr><td><b>Delete / Backspace</b></td><td>選択中のマスクを削除</td></tr>
+          </table>
+        </section>
+
+        <section class="help-section">
+          <h3>4. ズーム操作</h3>
+          <table class="help-table">
+            <tr><td><b>＋ / −</b></td><td>拡大 / 縮小（50%〜400%）</td></tr>
+            <tr><td><b>フィットボタン</b></td><td>押すたびに切替：縦フィット→横フィット→100%</td></tr>
+            <tr><td><b>ピンチ（スマホ）</b></td><td>2本指でズームイン/アウト</td></tr>
+          </table>
+        </section>
+
+        <section class="help-section">
+          <h3>5. ページ移動</h3>
+          <p>◀ ▶ ボタンで前後のページに移動。各ページ個別にマスクが保持されます。</p>
+        </section>
+
+        <section class="help-section">
+          <h3>6. 保存</h3>
+          <p>「📥 PDFダウンロード」でマスク済みPDFを保存。</p>
+          <ul>
+            <li>ファイル名は「<b>元のファイル名_masked.pdf</b>」</li>
+            <li>元のテキスト情報は削除され、<b>画像化されたPDF</b>として出力（テキスト抽出不可）</li>
+            <li>スマホではOSの共有メニューが表示されます</li>
+          </ul>
+        </section>
+
+        <section class="help-section">
+          <h3>7. スマホでの操作</h3>
+          <table class="help-table">
+            <tr><td><b>1本指タッチ</b></td><td>描画 / 選択 / スクロール</td></tr>
+            <tr><td><b>2本指ピンチ</b></td><td>ズームイン/アウト</td></tr>
+            <tr><td><b>マスク上タッチ</b></td><td>選択→ドラッグで移動/リサイズ</td></tr>
+          </table>
+        </section>
+
+        <section class="help-section help-note">
+          <h3>セキュリティについて</h3>
+          <p>このツールは<b>完全にブラウザ内で動作</b>します。PDFファイルがサーバーに送信されることはありません。安心してご利用ください。</p>
+        </section>
+      </div>
+    </div>
 
     <!-- Toolbar -->
     <div class="toolbar" id="toolbar" style="display:none;">

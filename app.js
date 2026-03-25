@@ -78,6 +78,18 @@
     if (e.target.files[0]) loadPDF(e.target.files[0]);
   });
 
+  // Help modal
+  $('#helpBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    $('#helpOverlay').style.display = 'flex';
+  });
+  $('#helpClose').addEventListener('click', () => {
+    $('#helpOverlay').style.display = 'none';
+  });
+  $('#helpOverlay').addEventListener('click', (e) => {
+    if (e.target === $('#helpOverlay')) $('#helpOverlay').style.display = 'none';
+  });
+
   // Drag & Drop
   dropZone.addEventListener('dragover', (e) => {
     e.preventDefault();
